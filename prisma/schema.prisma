@@ -1,0 +1,260 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model blogs {
+  s_no         Int      @id @default(autoincrement())
+  s_id         Int
+  c_id         Int
+  t_id         Int
+  title        String   @db.Text
+  description  String   @db.Text
+  keyword      String   @db.Text
+  content      Bytes    @db.Blob
+  tags         String   @db.VarChar(255)
+  employee_id  Int
+  status       Int      @default(1)
+  is_deleted   Int      @default(0)
+  added_date   DateTime @default(now()) @db.DateTime(0)
+  updated_date DateTime @default(now()) @db.DateTime(0)
+  chapters     chapters @relation(fields: [c_id], references: [s_no], onUpdate: Restrict, map: "chapter_name")
+  subjects     subjects @relation(fields: [s_id], references: [s_no], onUpdate: Restrict, map: "subject_name")
+  topics       topics   @relation(fields: [t_id], references: [s_no], onUpdate: Restrict, map: "topic_name")
+
+  @@index([c_id], map: "Chapter ID")
+  @@index([employee_id], map: "EmployeeID")
+  @@index([s_id], map: "Subject ID")
+  @@index([t_id], map: "Topic ID")
+}
+
+model chapters {
+  s_no         Int           @id @default(autoincrement())
+  s_id         Int
+  class_id     Int
+  c_name       String        @db.VarChar(255)
+  weightage    Int
+  short_url    String        @db.VarChar(50)
+  employee_id  Int
+  status       Int           @default(1)
+  is_deleted   Int           @default(0)
+  added_date   DateTime      @default(now()) @db.DateTime(0)
+  updated_date DateTime      @default(now()) @db.DateTime(0)
+  blogs        blogs[]
+  classes      classes       @relation(fields: [class_id], references: [s_no], onUpdate: Restrict, map: "Class")
+  employees    employees     @relation(fields: [employee_id], references: [s_no], onUpdate: Restrict, map: "Employee")
+  subjects     subjects      @relation(fields: [s_id], references: [s_no], onUpdate: Restrict, map: "Subject")
+  ncert_book   ncert_book[]
+  progress     progress[]
+  study_notes  study_notes[]
+  topics       topics[]
+
+  @@index([class_id], map: "Class")
+  @@index([employee_id], map: "Employee")
+  @@index([s_id], map: "Subject")
+}
+
+model classes {
+  s_no         Int        @id @default(autoincrement())
+  class_name   String     @db.VarChar(255)
+  is_deleted   Int        @default(0)
+  added_date   DateTime   @default(now()) @db.DateTime(0)
+  updated_date DateTime   @default(now()) @db.DateTime(0)
+  chapters     chapters[]
+}
+
+model employees {
+  s_no         Int           @id @default(autoincrement())
+  name         String        @db.VarChar(50)
+  email        String        @db.VarChar(50)
+  phone        String        @db.VarChar(250)
+  password     String        @db.VarChar(50)
+  role         String        @db.VarChar(50)
+  status       Int           @default(1)
+  is_deleted   Int           @default(0)
+  added_date   DateTime      @default(now()) @db.DateTime(0)
+  updated_date DateTime      @default(now()) @db.DateTime(0)
+  chapters     chapters[]
+  ncert_book   ncert_book[]
+  study_notes  study_notes[]
+  subjects     subjects[]
+  topics       topics[]
+}
+
+model ncert_book {
+  s_no         Int       @id @default(autoincrement())
+  s_id         Int
+  c_id         Int
+  t_id         Int
+  content      Bytes     @db.Blob
+  employee_id  Int
+  status       Int       @default(1)
+  is_deleted   Int       @default(0)
+  added_date   DateTime  @default(now()) @db.DateTime(0)
+  updated_date DateTime  @default(now()) @db.DateTime(0)
+  chapters     chapters  @relation(fields: [c_id], references: [s_no], onUpdate: Restrict, map: "Chapter ID")
+  employees    employees @relation(fields: [employee_id], references: [s_no], onUpdate: Restrict, map: "EmployeeID")
+  subjects     subjects  @relation(fields: [s_id], references: [s_no], onUpdate: Restrict, map: "Subject ID")
+  topics       topics    @relation(fields: [t_id], references: [s_no], onUpdate: Restrict, map: "Topic ID")
+
+  @@index([c_id], map: "Chapter ID")
+  @@index([employee_id], map: "EmployeeID")
+  @@index([s_id], map: "Subject ID")
+  @@index([t_id], map: "Topic ID")
+}
+
+model page_meta_data {
+  s_no         Int      @id @default(autoincrement())
+  s_id         Int
+  c_id         Int
+  t_id         Int
+  page_id      Int
+  title        String   @db.Text
+  description  String   @db.Text
+  keyword      String   @db.Text
+  employee_id  Int
+  status       Int      @default(1)
+  is_deleted   Int      @default(0)
+  added_date   DateTime @default(now()) @db.DateTime(0)
+  updated_date DateTime @default(now()) @db.DateTime(0)
+
+  @@index([c_id], map: "Chapter ID")
+  @@index([employee_id], map: "EmployeeID")
+  @@index([s_id], map: "Subject ID")
+  @@index([t_id], map: "Topic ID")
+}
+
+model progress {
+  s_no         Int      @id @default(autoincrement())
+  s_id         Int
+  c_id         Int
+  t_id         Int
+  user_id      Int
+  added_date   DateTime @default(now()) @db.DateTime(0)
+  updated_date DateTime @default(now()) @db.DateTime(0)
+  chapters     chapters @relation(fields: [c_id], references: [s_no], onUpdate: Restrict, map: "ChapID")
+  subjects     subjects @relation(fields: [s_id], references: [s_no], onUpdate: Restrict, map: "SubID")
+  topics       topics   @relation(fields: [t_id], references: [s_no], onUpdate: Restrict, map: "TopicId")
+  users        users    @relation(fields: [user_id], references: [s_no], onUpdate: Restrict, map: "Users")
+
+  @@index([s_id], map: "ChapID")
+  @@index([c_id], map: "SubID")
+  @@index([t_id], map: "TopicId")
+  @@index([user_id], map: "Users")
+}
+
+model streams {
+  s_no         Int        @id @default(autoincrement())
+  stream_name  String     @db.VarChar(50)
+  short_url    String     @db.VarChar(50)
+  employee_id  Int
+  status       Int        @default(1)
+  is_deleted   Int        @default(0)
+  added_date   DateTime   @default(now()) @db.DateTime(0)
+  updated_date DateTime   @default(now()) @db.DateTime(0)
+  subjects     subjects[]
+
+  @@index([employee_id], map: "Employee Id")
+}
+
+model study_notes {
+  s_no         Int       @id @default(autoincrement())
+  s_id         Int
+  c_id         Int
+  t_id         Int
+  content      Bytes     @db.Blob
+  employee_id  Int
+  status       Int       @default(1)
+  is_deleted   Int       @default(0)
+  added_date   DateTime  @default(now()) @db.DateTime(0)
+  updated_date DateTime  @default(now()) @db.DateTime(0)
+  employees    employees @relation(fields: [employee_id], references: [s_no], onUpdate: Restrict, map: "Empid")
+  chapters     chapters  @relation(fields: [c_id], references: [s_no], onUpdate: Restrict, map: "chatperid")
+  subjects     subjects  @relation(fields: [s_id], references: [s_no], onUpdate: Restrict, map: "subject_id")
+  topics       topics    @relation(fields: [t_id], references: [s_no], onUpdate: Restrict, map: "topic_id")
+
+  @@index([employee_id], map: "Empid")
+  @@index([c_id], map: "chatperid")
+  @@index([s_id], map: "subject_id")
+  @@index([t_id], map: "topic_id")
+}
+
+model subjects {
+  s_no         Int           @id @default(autoincrement())
+  s_name       String        @db.VarChar(50)
+  short_url    String        @db.VarChar(50)
+  stream       Int
+  employee_id  Int
+  status       Int           @default(1)
+  is_deleted   Int           @default(0)
+  added_date   DateTime      @default(now()) @db.DateTime(0)
+  updated_date DateTime      @default(now()) @db.DateTime(0)
+  blogs        blogs[]
+  chapters     chapters[]
+  ncert_book   ncert_book[]
+  progress     progress[]
+  study_notes  study_notes[]
+  employees    employees     @relation(fields: [employee_id], references: [s_no], onUpdate: Restrict, map: "Employee Id")
+  streams      streams       @relation(fields: [stream], references: [s_no], onDelete: NoAction, onUpdate: NoAction, map: "streamId")
+  topics       topics[]
+
+  @@index([employee_id], map: "Employee Id")
+  @@index([stream], map: "streamId")
+}
+
+model tags {
+  s_no         Int      @id @default(autoincrement())
+  tag_name     String   @db.VarChar(50)
+  short_url    String   @db.VarChar(50)
+  employee_id  Int
+  status       Int      @default(1)
+  is_deleted   Int      @default(0)
+  added_date   DateTime @default(now()) @db.DateTime(0)
+  updated_date DateTime @default(now()) @db.DateTime(0)
+
+  @@index([employee_id], map: "Employee Id")
+}
+
+model topics {
+  s_no         Int           @id @default(autoincrement())
+  s_id         Int
+  c_id         Int
+  t_name       String        @db.VarChar(255)
+  short_url    String        @db.VarChar(50)
+  employee_id  Int
+  status       Int           @default(1)
+  is_deleted   Int           @default(0)
+  added_date   DateTime      @default(now()) @db.DateTime(0)
+  updated_date DateTime      @default(now()) @db.DateTime(0)
+  blogs        blogs[]
+  ncert_book   ncert_book[]
+  progress     progress[]
+  study_notes  study_notes[]
+  chapters     chapters      @relation(fields: [c_id], references: [s_no], onDelete: NoAction, onUpdate: NoAction, map: "Chapters")
+  employees    employees     @relation(fields: [employee_id], references: [s_no], onDelete: NoAction, onUpdate: NoAction, map: "Employees")
+  subjects     subjects      @relation(fields: [s_id], references: [s_no], onDelete: NoAction, onUpdate: NoAction, map: "Subjects")
+
+  @@index([c_id], map: "Chapters")
+  @@index([employee_id], map: "Employees")
+  @@index([s_id], map: "Subjects")
+}
+
+model users {
+  s_no           Int        @id @default(autoincrement())
+  name           String     @db.VarChar(50)
+  email          String     @db.VarChar(50)
+  phone          String     @db.VarChar(250)
+  otp            Int
+  city           String     @db.VarChar(50)
+  state          String     @db.VarChar(50)
+  targeted_score Int
+  is_active      Int        @default(1)
+  is_deleted     Int        @default(0)
+  added_date     DateTime   @default(now()) @db.DateTime(0)
+  updated_date   DateTime   @default(now()) @db.DateTime(0)
+  progress       progress[]
+}
