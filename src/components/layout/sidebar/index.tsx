@@ -1,14 +1,18 @@
 "use client";
 import React, { useState } from "react";
-import mainLogo from "../../../../public/images/Neet Guid Logo.png";
 import Image from "next/image";
+import mainLogo from "../../../../public/images/Neet Guid Logo.png";
 import neetDarkLogo from "../../../../public/images/neetGuideDarkLogo.png";
 import Link from "next/link";
 import ThemeToggle from "../ToggleTheme/theme-toggle";
+import { useTheme } from "next-themes";
+
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [dropdown1Open, setDropdown1Open] = useState(false);
   const [dropdown2Open, setDropdown2Open] = useState(false);
+  const { resolvedTheme } = useTheme();
+
   return (
     <div className="flex h-screen">
       <div
@@ -24,21 +28,23 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
       >
         <div className="px-4 py-6">
           {/* <h2 className="text-2xl font-semibold">Sidebar</h2> */}
-          <Image
-            src={mainLogo}
-            loading="lazy"
-            width={80}
-            height={80}
-            alt="logo"
-            className="dark:hidden"
-          />
-          <Image
-            src={neetDarkLogo}
-            width={80}
-            height={80}
-            alt="logo"
-            className="hidden dark:block"
-          />
+          {resolvedTheme !== "light" ? (
+            <Image
+              src={mainLogo}
+              loading="lazy"
+              width={80}
+              height={80}
+              alt="logo"
+            />
+          ) : (
+            <Image
+              loading="lazy"
+              src={neetDarkLogo}
+              width={80}
+              height={80}
+              alt="logo"
+            />
+          )}
           <nav className="mt-6">
             <div className="relative">
               <button
@@ -47,9 +53,6 @@ const Sidebar = ({ children }: { children: React.ReactNode }) => {
                   dropdown1Open ? "[#D1DDF766]" : "[#F5F5F566]"
                 } w-full text-left`}
               >
-                <span className="float-left mr-[12px] w-[24px] h-[24px]">
-                  <img src={dropdown1Open ? `<` : `>`} alt="" />
-                </span>
               </button>
               {dropdown1Open && (
                 <div className="mt-2 space-y-2">
